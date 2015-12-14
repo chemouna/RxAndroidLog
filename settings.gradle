@@ -1,0 +1,3 @@
+rootProject.name = 'RxAndroidLog'
+
+include ':sample', ':rxandroidlog'
