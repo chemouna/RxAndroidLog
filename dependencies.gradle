@@ -2,8 +2,28 @@ ext {
 
   androidPlugin = "com.android.tools.build:gradle:2.0.0-alpha2"
 
-  rxJava = "io.reactivex:rxjava:1.1.0"
+  versionCode = 1
+  versionName = "0.1"
 
+  group="com.mounacheikhna"
+  pom_name="RxAndroidLog Library"
+  pom_artifact_id="rxAndroidLog"
+  pom_packaging="aar"
+  pom_url="https://github.com/chemouna/RxAndroidLog"
+  pom_description="A logger with an extensible API for RxJava"
+  pom_scm_url="https://github.com/chemouna/RxAndroidLog"
+  pom_scm_connection="scm:git@github.com:chemouna/RxAndroidLog.git"
+  pom_scm_dev_connection="scm:git@github.com:chemouna/RxAndroidLog.git"
+  pom_licence_name="The Apache Software License, Version 2.0"
+  pom_licence_url="http://www.apache.org/licenses/LICENSE-2.0.txt"
+  pom_licence_dist="repo"
+  pom_developer_id="chemouna"
+  pom_developer_name="Mouna Cheikhna"
+  pom_developer_email="cheikhnamouna@gmail.com"
+
+
+  //dependencies
+  rxJava = "io.reactivex:rxjava:1.1.0"
   junit = "junit:junit:4.12"
 
 }
