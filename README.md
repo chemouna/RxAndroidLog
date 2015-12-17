@@ -4,7 +4,7 @@ A logger with an extensible API for RxJava
 (This project is still under heavy development and api may change very often and a lot in 
 the coming versions).
 
-We all know debugging RxJava's code is pretty hard, *RxAndroidLog* is a library to help with 
+Debugging RxJava's code is pretty hard, *RxAndroidLog* is a library to help with 
 logging rxjava operations by providing an extensible api for logging.
 
 Logging operations can be composed with rxjava's operation and granular control for what to log 
