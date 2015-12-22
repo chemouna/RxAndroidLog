@@ -4,6 +4,7 @@ subprojects {
   buildscript {
     dependencies {
       classpath rootProject.ext.androidPlugin
+      classpath rootProject.ext.retrolambdaPlugin
     }
     repositories {
       mavenCentral()

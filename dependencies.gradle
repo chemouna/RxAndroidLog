@@ -1,6 +1,7 @@
 ext {
 
   androidPlugin = "com.android.tools.build:gradle:2.0.0-alpha2"
+  retrolambdaPlugin = "me.tatarka:gradle-retrolambda:3.2.4"
 
   versionCode = 1
   versionName = "0.1"
@@ -25,5 +26,8 @@ ext {
   //dependencies
   rxJava = "io.reactivex:rxjava:1.1.0"
   junit = "junit:junit:4.12"
+
+  supportVersion = "23.1.1"
+  supportAppcompat = "com.android.support:appcompat-v7:$supportVersion"
 
 }
