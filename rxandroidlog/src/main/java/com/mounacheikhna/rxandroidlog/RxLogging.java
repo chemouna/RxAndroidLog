@@ -5,8 +5,6 @@ import com.mounacheikhna.rxandroidlog.Logger.LogLevel;
 /**
  * Created by cheikhnamouna on 12/14/15.
  *
- * (and it can be even better if it is done like timber where user can plug in any tree)
- *
  */
 public final class RxLogging {
 

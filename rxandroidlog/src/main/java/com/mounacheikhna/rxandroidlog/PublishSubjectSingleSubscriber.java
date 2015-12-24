@@ -9,8 +9,7 @@ import rx.subjects.Subject;
  * there is no subscriber any notifications (<code>onNext</code>,
  * <code>onError</code>, <code>onCompleted</code>) are ignored.
  *
- * @param <T>
- *            type of items being emitted/observed by this subject
+ * @param <T> type of items being emitted/observed by this subject
  */
 public final class PublishSubjectSingleSubscriber<T> extends Subject<T, T> {
 
@@ -32,8 +31,7 @@ public final class PublishSubjectSingleSubscriber<T> extends Subject<T, T> {
    * Returns a new instance of a {@link PublishSubjectSingleSubscriber}.
    *
    * @return the new instance
-   * @param <T>
-   *            type of items being emitted/observed by this subject
+   * @param <T> type of items being emitted/observed by this subject
    */
   public static <T> PublishSubjectSingleSubscriber<T> create() {
     return new PublishSubjectSingleSubscriber<T>();
