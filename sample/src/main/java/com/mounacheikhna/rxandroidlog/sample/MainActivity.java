@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
                 .range(1,20)
                 .lift(RxLogging.<Integer>logger()
                         .showCount("total")
-                        .when( x -> x%2==0)
+                        .when(x -> x%2 == 0)
                         .showCount("pairs total")
                         .onNext(false)
                         .log())

@@ -1,8 +1,6 @@
 package com.mounacheikhna.rxandroidlog;
 
-import com.mounacheikhna.rxandroidlog.RxLogging.Logger;
-import com.mounacheikhna.rxandroidlog.RxLogging.Parameters;
-import com.mounacheikhna.rxandroidlog.RxLogging.Parameters.Message;
+import com.mounacheikhna.rxandroidlog.Parameters.Message;
 import rx.Notification;
 import rx.Observable;
 import rx.Subscriber;
@@ -100,7 +98,7 @@ public class OperatorLogging<T> implements Observable.Operator<T, T> {
       public void call() {
         // log unsubscription if requested
         if (p.getUnsubscribedMessage() != null)
-          log(p.getLogger(), p.getUnsubscribedMessage(), p.getUnsubscribedLevel(), null);
+          log(p.getLogger(), p.getUnsubscribedMessage(), p.getUnsubscribedLogLevel(), null);
       }
 
     };
@@ -112,7 +110,7 @@ public class OperatorLogging<T> implements Observable.Operator<T, T> {
       public void call() {
         // log subscription if requested
         if (p.getSubscribedMessage() != null)
-          log(p.getLogger(), p.getSubscribedMessage(), p.getSubscribedLevel(), null);
+          log(p.getLogger(), p.getSubscribedMessage(), p.getSubscribedLogLevel(), null);
       }
     };
   }
