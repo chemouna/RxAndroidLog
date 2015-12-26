@@ -1,6 +1,8 @@
 package com.mounacheikhna.rxandroidlog;
 
 import com.mounacheikhna.rxandroidlog.Logger.LogLevel;
+import com.mounacheikhna.rxandroidlog.OperatorLogging.Builder;
+import com.mounacheikhna.rxandroidlog.OperatorLogging.Parameters;
 
 /**
  * Created by cheikhnamouna on 12/14/15.
@@ -17,7 +19,7 @@ public final class RxLogging {
    * Returns a builder for Log.
    * @return builder
    */
-  public static <T> Parameters.Builder<T> logger() {
+  public static <T> Builder<T> logger() {
     return Parameters.<T> builder().source();
   }
 
@@ -29,22 +31,22 @@ public final class RxLogging {
   static void log(Logger logger, String msg, LogLevel LogLevel, Throwable t) {
 
     if (t == null) {
-      if (LogLevel == LogLevel.INFO)
+      if (LogLevel == Logger.LogLevel.INFO)
         logger.info(msg);
-      else if (LogLevel == LogLevel.DEBUG)
+      else if (LogLevel == Logger.LogLevel.DEBUG)
         logger.debug(msg);
-      else if (LogLevel == LogLevel.WARN)
+      else if (LogLevel == Logger.LogLevel.WARN)
         logger.warn(msg);
-      else if (LogLevel == LogLevel.ERROR)
+      else if (LogLevel == Logger.LogLevel.ERROR)
         logger.error(msg);
     } else {
-      if (LogLevel == LogLevel.INFO)
+      if (LogLevel == Logger.LogLevel.INFO)
         logger.info(msg, t);
-      else if (LogLevel == LogLevel.DEBUG)
+      else if (LogLevel == Logger.LogLevel.DEBUG)
         logger.debug(msg, t);
-      else if (LogLevel == LogLevel.WARN)
+      else if (LogLevel == Logger.LogLevel.WARN)
         logger.warn(msg, t);
-      else if (LogLevel == LogLevel.ERROR)
+      else if (LogLevel == Logger.LogLevel.ERROR)
         logger.error(msg, t);
     }
   }
