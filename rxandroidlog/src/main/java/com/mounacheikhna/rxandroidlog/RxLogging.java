@@ -27,7 +27,6 @@ public final class RxLogging {
     log(logger, s, onNextLogLevel, null);
   }
 
-  //TODO: later make it accept a debugtree or something similar like timber
   static void log(Logger logger, String msg, LogLevel LogLevel, Throwable t) {
 
     if (t == null) {

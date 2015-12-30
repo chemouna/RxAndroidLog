@@ -4,6 +4,7 @@ import android.util.Log;
 
 /**
  * Created by cheikhnamouna on 12/24/15.
+ *
  */
 class AndroidLogger implements Logger {
 
