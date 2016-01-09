@@ -19,7 +19,7 @@ import static com.mounacheikhna.rxandroidlog.RxLogging.log;
 /**
  * Created by cheikhnamouna on 12/14/15.
  */
-public class OperatorLogging<T> implements Observable.Operator<T, T> {
+public final class OperatorLogging<T> implements Observable.Operator<T, T> {
 
   private final Parameters<T> parameters;
 

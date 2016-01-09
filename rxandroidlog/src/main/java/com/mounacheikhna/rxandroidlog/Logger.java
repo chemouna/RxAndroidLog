@@ -6,7 +6,7 @@ package com.mounacheikhna.rxandroidlog;
  */
 public interface Logger {
 
-  static enum LogLevel {
+  enum LogLevel {
     INFO, WARN, DEBUG, ERROR
   }
 
