@@ -19,7 +19,7 @@ Binaries and dependency information for Maven, Ivy, Gradle and others can be fou
 
 for Gradle:
 ```groovy
-compile 'com.mounacheikhna:rxAndroidLog:0.1'
+compile 'com.mounacheikhna:rxAndroidLog:0.2'
 ```
 
 and for Maven:
@@ -28,7 +28,7 @@ and for Maven:
 <dependency>
   <groupId>com.mounacheikhna</groupId>
   <artifactId>rxAndroidLog</artifactId>
-  <version>0.1</version>
+  <version>0.2</version>
   <type>aar</type>
 </dependency>
 ```
