@@ -88,35 +88,22 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
 
   private static <T> Observable<Message<T>> createObservableFromSubject(
       PublishSubjectSingleSubscriber<T> subject) {
-    return subject.materialize().map(new Func1<Notification<T>, Message<T>>() {
-
-      @Override
-      public Message<T> call(Notification<T> n) {
-        return new Message<T>(n, "");
-      }
-    });
+    return subject.materialize().map(n -> new Message<T>(n, ""));
   }
 
   private static <T> Action0 createUnsubscriptionAction(final Parameters<T> p) {
-    return new Action0() {
-      @Override
-      public void call() {
-        // log unsubscription if requested
-        if (p.getUnsubscribedMessage() != null)
-          log(p.getLogger(), p.getUnsubscribedMessage(), p.getUnsubscribedLogLevel(), null);
-      }
-
+    return () -> {
+      // log unsubscription if requested
+      if (p.getUnsubscribedMessage() != null)
+        log(p.getLogger(), p.getUnsubscribedMessage(), p.getUnsubscribedLogLevel(), null);
     };
   }
 
   private static <T> Action0 createSubscriptionAction(final Parameters<T> p) {
-    return new Action0() {
-      @Override
-      public void call() {
-        // log subscription if requested
-        if (p.getSubscribedMessage() != null)
-          log(p.getLogger(), p.getSubscribedMessage(), p.getSubscribedLogLevel(), null);
-      }
+    return () -> {
+      // log subscription if requested
+      if (p.getSubscribedMessage() != null)
+        log(p.getLogger(), p.getSubscribedMessage(), p.getSubscribedLogLevel(), null);
     };
   }
 
@@ -154,22 +141,17 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     private final boolean logOnError = true;
     private String onErrorFormat = "";
     private String onNextFormat = "";
-    private Logger.LogLevel mOnNextLogLevel = Logger.LogLevel.INFO;
-    private Logger.LogLevel mOnErrorLogLevel = Logger.LogLevel.ERROR;
-    private Logger.LogLevel mOnCompletedLogLevel = Logger.LogLevel.INFO;
-    private Logger.LogLevel mSubscribedLogLevel = Logger.LogLevel.DEBUG;
-    private Logger.LogLevel mUnsubscribedLogLevel = Logger.LogLevel.DEBUG;
-    private Func1<? super T, ?> valueFunction = new Func1<T, T>() {
-      @Override
-      public T call(T t) {
-        return t;
-      }
-    };
+    private Logger.LogLevel onNextLogLevel = Logger.LogLevel.INFO;
+    private Logger.LogLevel onErrorLogLevel = Logger.LogLevel.ERROR;
+    private Logger.LogLevel onCompletedLogLevel = Logger.LogLevel.INFO;
+    private Logger.LogLevel subscribedLogLevel = Logger.LogLevel.DEBUG;
+    private Logger.LogLevel unsubscribedLogLevel = Logger.LogLevel.DEBUG;
+    private Func1<? super T, ?> valueFunction = t -> t;
     private boolean logStackTrace = false;
     private boolean logMemory = false;
 
-    private final List<Func1<Observable<Message<T>>, Observable<Message<T>>>>
-        transformations = new ArrayList<Func1<Observable<Message<T>>, Observable<Message<T>>>>();
+    private List<Func1<Observable<Message<T>>, Observable<Message<T>>>>
+        transformations = new ArrayList<>();
 
     public Logger getLogger() {
       if (logger != null)
@@ -336,22 +318,22 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     }
 
     public Builder<T> onNext(Logger.LogLevel onNextLogLevel) {
-      this.mOnNextLogLevel = onNextLogLevel;
+      this.onNextLogLevel = onNextLogLevel;
       return this;
     }
 
     public Builder<T> onError(Logger.LogLevel onErrorLogLevel) {
-      this.mOnErrorLogLevel = onErrorLogLevel;
+      this.onErrorLogLevel = onErrorLogLevel;
       return this;
     }
 
     public Builder<T> onCompleted(Logger.LogLevel onCompletedLogLevel) {
-      this.mOnCompletedLogLevel = onCompletedLogLevel;
+      this.onCompletedLogLevel = onCompletedLogLevel;
       return this;
     }
 
     public Builder<T> subscribed(Logger.LogLevel subscribedLogLevel) {
-      this.mSubscribedLogLevel = subscribedLogLevel;
+      this.subscribedLogLevel = subscribedLogLevel;
       return this;
     }
 
@@ -361,7 +343,12 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     }
 
     public Builder<T> unsubscribed(Logger.LogLevel unsubscribedLogLevel) {
-      this.mUnsubscribedLogLevel = unsubscribedLogLevel;
+      this.unsubscribedLogLevel = unsubscribedLogLevel;
+      return this;
+    }
+
+    Builder<T> transformations(List<Func1<Observable<Message<T>>, Observable<Message<T>>>> transformations) {
+      this.transformations = transformations;
       return this;
     }
 
@@ -524,24 +511,18 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     public Builder<T> every(final int every, final AtomicLong count) {
       if (every > 1) {
         transformations
-            .add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
+            .add(observable -> observable.filter(new Func1<Message<T>, Boolean>() {
+              final AtomicLong c = count == null ? new AtomicLong(0)
+                  : count;
 
               @Override
-              public Observable<Message<T>> call(Observable<Message<T>> observable) {
-                return observable.filter(new Func1<Message<T>, Boolean>() {
-                  final AtomicLong c = count == null ? new AtomicLong(0)
-                      : count;
-
-                  @Override
-                  public Boolean call(Message<T> t) {
-                    if (t.value().isOnNext())
-                      return c.incrementAndGet() % every == 0;
-                    else
-                      return true;
-                  }
-                });
+              public Boolean call(Message<T> t) {
+                if (t.value().isOnNext())
+                  return c.incrementAndGet() % every == 0;
+                else
+                  return true;
               }
-            });
+            }));
       }
       return this;
     }
@@ -575,75 +556,48 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     }
 
     public Builder<T> when(final Func1<? super T, Boolean> when) {
-      transformations.add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
-
-        @Override
-        public Observable<Message<T>> call(Observable<Message<T>> observable) {
-          return observable.filter(new Func1<Message<T>, Boolean>() {
-            @Override
-            public Boolean call(Message<T> t) {
-              if (t.value().isOnNext())
-                return when.call(t.value().getValue());
-              else
-                return true;
-            }
-          });
-        }
-      });
+      transformations.add(observable -> observable.filter((Func1<Message<T>, Boolean>) t -> {
+        if (t.value().isOnNext())
+          return when.call(t.value().getValue());
+        else
+          return true;
+      }));
       return this;
     }
 
     public Builder<T> start(final long start) {
-      transformations.add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
+      transformations.add(observable -> observable.filter(new Func1<Message<T>, Boolean>() {
+        AtomicLong count = new AtomicLong(0);
 
         @Override
-        public Observable<Message<T>> call(Observable<Message<T>> observable) {
-          return observable.filter(new Func1<Message<T>, Boolean>() {
-            AtomicLong count = new AtomicLong(0);
-
-            @Override
-            public Boolean call(Message<T> t) {
-              if (t.value().isOnNext())
-                return start <= count.incrementAndGet();
-              else
-                return true;
-            }
-          });
+        public Boolean call(Message<T> t) {
+          if (t.value().isOnNext())
+            return start <= count.incrementAndGet();
+          else
+            return true;
         }
-      });
+      }));
       return this;
     }
 
     public Builder<T> finish(final long finish) {
-      transformations.add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
+      transformations.add(observable -> observable.filter(new Func1<Message<T>, Boolean>() {
+        AtomicLong count = new AtomicLong(0);
 
         @Override
-        public Observable<Message<T>> call(Observable<Message<T>> observable) {
-          return observable.filter(new Func1<Message<T>, Boolean>() {
-            AtomicLong count = new AtomicLong(0);
-
-            @Override
-            public Boolean call(Message<T> t) {
-              if (t.value().isOnNext())
-                return finish >= count.incrementAndGet();
-              else
-                return true;
-            }
-          });
+        public Boolean call(Message<T> t) {
+          if (t.value().isOnNext())
+            return finish >= count.incrementAndGet();
+          else
+            return true;
         }
-      });
+      }));
       return this;
     }
 
     public Builder<T> to(
         final Func1<Observable<? super Message<T>>, Observable<Message<T>>> f) {
-      transformations.add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
-
-        @Override
-        public Observable<Message<T>> call(Observable<Message<T>> observable) {
-          return f.call(observable);
-        }
-      });
+      transformations.add(observable -> f.call(observable));
       return this;
     }
 
@@ -652,16 +606,19 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
       return this;
     }
 
-    public OperatorLogging<T> log() {
-      transformations.add(new Func1<Observable<Message<T>>, Observable<Message<T>>>() {
+    public OperatorLogging<T> log(String tag) {
+      return new Builder<T>().name(tag).logger(getLogger())
+              .subscribed(subscribedMessage)
+              .unsubscribed(unsubscribedMessage)
+              .subscribed(subscribedLogLevel)
+              .unsubscribed(unsubscribedLogLevel)
+              .transformations(transformations)
+    }
 
-        @Override
-        public Observable<Message<T>> call(Observable<Message<T>> observable) {
-          return observable.doOnNext(log);
-        }
-      });
-      return new OperatorLogging<T>(new Parameters<T>(getLogger(), subscribedMessage,
-          unsubscribedMessage, mSubscribedLogLevel, mUnsubscribedLogLevel, transformations));
+    public OperatorLogging<T> log() {
+      transformations.add(observable -> observable.doOnNext(log));
+      return new OperatorLogging<>(new Parameters<>(getLogger(), subscribedMessage,
+              unsubscribedMessage, subscribedLogLevel, unsubscribedLogLevel, transformations));
     }
 
     Builder<T> source() {
@@ -680,14 +637,14 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
           RxLogging.addDelimited(s, onCompleteMessage);
           RxLogging.addDelimited(s, m.message());
           addMemory(s);
-          RxLogging.log(getLogger(), s.toString(), mOnCompletedLogLevel, null);
+          RxLogging.log(getLogger(), s.toString(), onCompletedLogLevel, null);
         } else if (m.value().isOnError() && logOnError) {
           StringBuilder s = new StringBuilder();
           RxLogging.addDelimited(s,
               String.format(onErrorFormat, m.value().getThrowable().getMessage()));
           RxLogging.addDelimited(s, m.message());
           addMemory(s);
-          RxLogging.log(getLogger(), s.toString(), mOnErrorLogLevel, m.value()
+          RxLogging.log(getLogger(), s.toString(), onErrorLogLevel, m.value()
               .getThrowable());
         } else if (m.value().isOnNext() && logOnNext) {
           StringBuilder s = new StringBuilder();
@@ -697,7 +654,7 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
           RxLogging.addDelimited(s, m.message());
           addMemory(s);
           addStackTrace(s);
-          RxLogging.log(getLogger(), s.toString(), mOnNextLogLevel, null);
+          RxLogging.log(getLogger(), s.toString(), onNextLogLevel, null);
         }
       }
 
@@ -765,7 +722,7 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
     }
 
     public static <T> Builder<T> builder() {
-      return new Builder<T>();
+      return new Builder<>();
     }
 
     public static class Message<T> {
@@ -788,9 +745,9 @@ public final class OperatorLogging<T> implements Observable.Operator<T, T> {
 
       public Message<T> append(String s) {
         if (message.length() > 0)
-          return new Message<T>(value, message + ", " + s);
+          return new Message<>(value, message + ", " + s);
         else
-          return new Message<T>(value, message + s);
+          return new Message<>(value, message + s);
       }
     }
 

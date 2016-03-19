@@ -7,6 +7,7 @@ subprojects {
       classpath rootProject.ext.androidPlugin
       classpath rootProject.ext.retrolambdaPlugin
     }
+
     repositories {
       mavenCentral()
       jcenter()
