@@ -33,7 +33,23 @@ and for Maven:
 </dependency>
 ```
 
+Usage 
+=====
 
+Create a logging operator with details of what you want to log, for example here we want 
+to show the count of the emitted values,log even numbers and show the count of even numbers.
+  
+```java  
+final OperatorLogging<Integer> log = RxLogging.<Integer>logger().showCount("total")
+            .when(x -> x % 2 == 0)
+            .showCount("even numbers total")
+            .onNext(false)
+            .log();
+
+Observable.range(1,20).lift(log)
+```
+                
+                
 Want to help?
 =============
 
